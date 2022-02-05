@@ -186,23 +186,28 @@ crime_agg <- london_st %>% select(crime_type, Month) %>% group_by(Month) %>% sum
   mutate(Month = ym(Month))
 
 #time series crimes for 3 years
-ggplot(crime_agg, aes(x = Month, y = value)) + geom_line() + theme_minimal()
+ggplot(crime_agg, aes(x = Month, y = value)) + geom_line() + theme_minimal() + ylab("Count") + xlab("Year") + 
+  ggtitle("Committed Crimes in London over 3 years")
 
 #aggregating different crime types based on a month 
 crime_by_type_all <- london_st %>% select(crime_type, Month) %>% group_by(Month, crime_type) %>% summarise(value = n()) %>% 
   mutate(Month = ym(Month))
 
 #time series for each crime in 3 years
-c <- ggplot(crime_by_type_all, aes(x = Month, y = value, color = crime_type)) + geom_line() + theme_minimal()
+c <- ggplot(crime_by_type_all, aes(x = Month, y = value, color = crime_type)) + geom_line() + theme_minimal() +
+  ylab("Count") + xlab("Year")+ ggtitle("Different Crime Types in London over 3 years")
+
 ggplotly(c)
 
-#aggregating crimes based on a month between 2018 and 2020 (before COVID-19 hit)
+#aggregating crimes based on a month between 2018 and 2020 (before COVID-19 hit) first lockdown was introduced in march 2020
 seasonality_total_2019 <- london_st %>% mutate(Month = ym(Month)) %>% 
-  filter(Month < ym("2020-07")) %>%
+  filter(Month < ym("2020-04")) %>%
   select(crime_type, Month) %>% group_by(Month) %>% summarise(value = n()) 
 
 #time series crimes until COVID-19 hit   
-c1 <- ggplot(seasonality_total_2019, aes(x = Month, y = value)) + geom_line() + theme_minimal()
+c1 <- ggplot(seasonality_total_2019, aes(x = Month, y = value)) + geom_line() + ylab("Count") + 
+  xlab("Date") + theme_minimal() + ggtitle("Committed Crimes in London before Covid Pandemic")
+
 ggplotly(c1)
 
 #aggregating each crime type based on a month between 18 and 2020 (before COVID-19 hit)
@@ -211,7 +216,9 @@ seasonality_by_type_2019 <- london_st %>% mutate(Month = ym(Month)) %>%
   select(crime_type, Month) %>% group_by(Month, crime_type) %>% summarise(value = n()) 
 
 #time series different crime types before COVID 19 hit
-c2 <- ggplot(seasonality_by_type_2019, aes(x = Month, y = value, color = crime_type)) + geom_line()
+c2 <- ggplot(seasonality_by_type_2019, aes(x = Month, y = value, color = crime_type)) +
+  geom_line() + xlab("Date") +ylab("Count") + ggtitle("Different Crime Types in London before Covid Pandemic")
+
 ggplotly(c2)
 
 #correlation of different crime types on monthly basis
@@ -220,13 +227,68 @@ corr = seasonality_by_type_2019_long = seasonality_by_type_2019 %>%
   ungroup() %>% 
   select(-Month) %>% cor()
 
-corrplot::corrplot(corr, type = "upper", title = "2019")
+corrplot::corrplot(corr, diag = FALSE, type = "upper", title = "Correlogram of Different Crime Types on Monthly Basis")
+
+
+#function for visualizing crimes before an specific date like lockdowns
+
+total_crime_fun = function(data,x){
+  
+  seasonality_total <- data %>% mutate(Month = ym(Month)) %>% 
+    filter(Month < ym(x)) %>%
+    select(crime_type, Month) %>% group_by(Month) %>% summarise(value = n()) 
+  
+  #time series crimes until COVID-19 hit   
+  c1 <- ggplot(seasonality_total, aes(x = Month, y = value)) + geom_line() + ylab("Count") + 
+    xlab("Date") + theme_minimal() + ggtitle(paste0("Committed Crimes in London before ", x))
+  
+  return(ggplotly(c1))
+  
+}
+
+total_crime_fun(data = london_st, x = "2021-04")
+
+
+#function for visualizing different crime types before an specific date like lockdowns
+
+crime_by_type_fun = function(data,x){
+  
+  seasonality_by_type <- data %>% mutate(Month = ym(Month)) %>% 
+    filter(Month < ym(x)) %>%
+    select(crime_type, Month) %>% group_by(Month, crime_type) %>% summarise(value = n()) 
+  
+  c2 <- ggplot(seasonality_by_type, aes(x = Month, y = value, color = crime_type)) +
+    geom_line() + xlab("Date") +ylab("Count") + ggtitle(paste0("Different Crime Types in London before ", x))
+  
+  return(ggplotly(c2))
+  
+}
+
+crime_by_type_fun(data = london_st, x = "2020-04")
+
+
+#function for visualizing different crime types within an specific year
+
+crime_by_type_yearly_fun = function(data,x){
+  
+  seasonality_by_type_2019 <- data %>% mutate(Month = ym(Month)) %>% 
+    filter(year(Month) == x) %>%
+    select(crime_type, Month) %>% group_by(Month, crime_type) %>% summarise(value = n()) 
+  
+  c2 <- ggplot(seasonality_by_type_2019, aes(x = Month, y = value, color = crime_type)) +
+    geom_line() + xlab("Date") +ylab("Count") + ggtitle(paste0("Different Crime Types in London in ", x))
+  
+  return(ggplotly(c2))
+  
+}
+
+crime_by_type_yearly_fun(data = london_st, x = 2020)
 
 
 
 #################     LONDON SS     #################     
 #################     data exploring / preparation    #################
-#aggregating outcome 
+#aggregating outcome based on hour 
 hourly <- london_ss %>% filter(Date < ym("2020-04")) %>% mutate(time = hour(Date)) %>% 
   group_by(Outcome, time) %>% summarise(value = n()) %>% group_by(time) %>% 
   mutate(total_stop = sum(value),
@@ -234,7 +296,11 @@ hourly <- london_ss %>% filter(Date < ym("2020-04")) %>% mutate(time = hour(Date
   filter(total_stop > 50, Outcome != "A no further action disposal") %>% 
   na.omit()
 
-#
 
-c3 <- ggplot(hourly, aes(x = time, y = rate, color = Outcome)) + geom_line()
+c3 <- ggplot(hourly, aes(x = time, y = rate, color = Outcome)) + geom_line() + xlab("hour") +
+  ylab("Outcome Rate") + theme_minimal() + ggtitle("Different Serious Outcomes Rates per Hour")
 ggplotly(c3)
+
+
+#=========================================================================
+
