@@ -18,6 +18,7 @@ london_st <- readRDS("df_st_london.rds")
 london_others <- readRDS("london_others.rds")
 df_st <- readRDS("df_st_london.rds")
 
+london_others = st_as_sf(london_others)
 #################     LONDON ST     #################     
 #################     data exploring / preparation    #################
 unique(london_st$reported_by)
@@ -80,12 +81,31 @@ leaflet() %>%
 
 # different crime types and locations
 pal1 <- colorBin("viridis", london_others$median_annual_income_household, 8, pretty = FALSE)
-pal2 <- colorBin("viridis", london_others$`Unemployment Rate`, 8, pretty = FALSE)
+pal2 <- colorFactor(palette = c("#330000","#FF6600", "#FF9900","#FFCC66" ), levels = c("10 or above" , "4.5 - 10", "2.7 - 4.5", "2.7 or below"))
+pal3 <- colorFactor(palette = c("#330000","#FF6600", "#FF9900","#FFCC66" ), levels = c("20 or above" , "7 - 20", "2 - 7", "2 or below"))
+pal4 <- colorFactor(palette = c("#00FFFF","#00CCCC", "#009999","#006666" ), levels = c("7.8 or below" , "7.8 - 7.93", "7.93 - 7.98", "7.98 or above"))
+pal5 <- colorBin("viridis", london_others$`country of birth Not uk rate`, 8, pretty = FALSE)
+pal6 <- colorBin("viridis", london_others$`median price of house`, 8, pretty = FALSE)
+pal7 <- colorBin("Greys", london_others$`White rate`, 8, pretty = FALSE)
+pal8 <- colorBin("Greys", london_others$`Mixed ethnic groups rate`, 8, pretty = FALSE)
+pal9 <- colorBin("Greys", london_others$`Asian_Asian British rate`, 8, pretty = FALSE)
+pal10 <- colorBin("Greys", london_others$`Black_ African_Caribbean_Black British rate`, 8, pretty = FALSE)
+pal11 <- colorBin("Greys", london_others$`Other ethnic group rate`, 8, pretty = FALSE)
+pal12 <- colorBin("viridis", london_others$`population density (persons per hectar)`, 8, pretty = FALSE)
 
-#pal2 <- colorFactor(palette = c("#FF6600", "#FF9900","#FFCC66" ), levels = c(">21" , "14.5 - 21", "14.5>"))
 
 london_others <- london_others %>% mutate(pop1 = paste0(round(median_annual_income_household), " at ", LSOA11NM),
-                                          pop2 = paste0(`Unemployment Rate`, " at ", LSOA11NM))
+                                          pop2 = paste0(`Unemployment Rate`, "% at ", LSOA11NM),
+                                          pop3 = paste0(`No qualifications rate`, "% at ", LSOA11NM),
+                                          pop4= paste0(`Average Score of PTAL`, " at ", LSOA11NM),
+                                          pop5 = paste0(`country of birth Not uk rate`, "% at ", LSOA11NM),
+                                          pop6 = paste0(round(`median price of house`/1000), "K at ", LSOA11NM),
+                                          pop7 = paste0(round(`White rate`,2), "% at ", LSOA11NM),
+                                          pop8 = paste0(round(`Mixed ethnic groups rate`,2), "% at ", LSOA11NM),
+                                          pop9 = paste0(round(`Asian_Asian British rate`,2), "% at", LSOA11NM),
+                                          pop10 = paste0(round(`Black_ African_Caribbean_Black British rate`,2), "% at ", LSOA11NM),
+                                          pop11 = paste0(round(`Other ethnic group rate`, 2), "% at ", LSOA11NM),
+                                          pop12 = paste0(round(`population density (persons per hectar)`,2), " per hectare at ", LSOA11NM))
 
 
 leaflet() %>%
@@ -118,7 +138,8 @@ leaflet() %>%
                 style = list("font-weight" = "normal", padding = "3px 8px"),
                 textsize = "15px",
                 direction = "auto"))  %>%
-  addPolygons(data = london_others, fillColor = ~pal2(london_others$`Unemployment Rate`),
+  addLegend(pal = pal1, group = "Income" , values = london_others$median_annual_income_household, title = "Median Income (£)" ,opacity = 0.7) %>%
+  addPolygons(data = london_others, fillColor = ~pal2(london_others$unemp),
               fillOpacity = 0.7,
               group = "Unemployment Rate",
               weight = 0.2,
@@ -133,15 +154,188 @@ leaflet() %>%
                 style = list("font-weight" = "normal", padding = "3px 8px"),
                 textsize = "15px",
                 direction = "auto")) %>% 
+  addLegend(pal = pal2, group = "Unemployment Rate" , values = london_others$unemp, title = "Unemployment %", opacity = 0.7,
+            labFormat = labelFormat(suffix = " %")) %>%
+  addPolygons(data = london_others, fillColor = ~pal3(london_others$qualification),
+              fillOpacity = 0.4,
+              group = "No Qualification Rate",
+              weight = 0.2,
+              smoothFactor = 0.2,
+              highlight = highlightOptions(
+                weight = 5,
+                color = "#666",
+                fillOpacity = 0.2,
+                bringToFront = TRUE),
+              label=london_others$pop3,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")) %>% 
+  addLegend(pal = pal3, group = "No Qualification Rate" , values = london_others$qualification, title = "No Qualification %", opacity = 0.7,
+            labFormat = labelFormat(suffix = " %")) %>%
+  addPolygons(data = london_others, fillColor = ~pal4(london_others$ptal),
+              fillOpacity = 0.4,
+              group = "Average PTAL score",
+              weight = 0.2,
+              smoothFactor = 0.2,
+              highlight = highlightOptions(
+                weight = 5,
+                color = "#666",
+                fillOpacity = 0.2,
+                bringToFront = TRUE),
+              label=london_others$pop4,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")) %>%
+  addLegend(pal = pal4, group = "Average PTAL score" , values = london_others$ptal, title = "Average PTAL score" ,opacity = 0.7) %>%
+  addPolygons(data = london_others, fillColor = ~pal5(london_others$`country of birth Not uk rate`),
+              fillOpacity = 0.4,
+              group = "Immigration Rate",
+              weight = 0.2,
+              smoothFactor = 0.2,
+              highlight = highlightOptions(
+                weight = 5,
+                color = "#666",
+                fillOpacity = 0.2,
+                bringToFront = TRUE),
+              label=london_others$pop5,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")) %>%
+  addLegend(pal = pal5, group = "Immigration Rate" , values = london_others$`country of birth Not uk rate`, title = "Immigration %", opacity = 0.7,
+            labFormat = labelFormat(suffix = " %")) %>%
+  addPolygons(data = london_others, fillColor = ~pal6(london_others$`median price of house`),
+              fillOpacity = 0.4,
+              group = "Median House Price",
+              weight = 0.2,
+              smoothFactor = 0.2,
+              highlight = highlightOptions(
+                weight = 5,
+                color = "#666",
+                fillOpacity = 0.2,
+                bringToFront = TRUE),
+              label=london_others$pop6,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")) %>%
+  addLegend(pal = pal6, group = "Median House Price" , values = london_others$`median price of house`, title = "Median House Price (£)" ,opacity = 0.7) %>%
+  addPolygons(data = london_others, fillColor = ~pal7(london_others$`White rate`),
+              fillOpacity = 0.4,
+              group = "White Ethnic Rate",
+              weight = 0.2,
+              smoothFactor = 0.2,
+              highlight = highlightOptions(
+                weight = 5,
+                color = "#666",
+                fillOpacity = 0.2,
+                bringToFront = TRUE),
+              label=london_others$pop7,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")) %>%
+  addLegend(pal = pal7, group = "White Ethnic Rate" , values = london_others$`White rate`, title = "White Ethnic %", opacity = 0.7,
+            labFormat = labelFormat(suffix = " %")) %>%
+  addPolygons(data = london_others, fillColor = ~pal8(london_others$`Mixed ethnic groups rate`),
+              fillOpacity = 0.4,
+              group = "Mixed Ethnic Rate",
+              weight = 0.2,
+              smoothFactor = 0.2,
+              highlight = highlightOptions(
+                weight = 5,
+                color = "#666",
+                fillOpacity = 0.2,
+                bringToFront = TRUE),
+              label=london_others$pop8,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")) %>%
+  addLegend(pal = pal8, group = "Mixed Ethnic Rate" , values = london_others$`Mixed ethnic groups rate`, title = "Mixed Ethnic %", opacity = 0.7,
+            labFormat = labelFormat(suffix = " %")) %>%
+  addPolygons(data = london_others, fillColor = ~pal9(london_others$`Asian_Asian British rate`),
+              fillOpacity = 0.4,
+              group = "Asian/Asian British Ethnic Rate",
+              weight = 0.2,
+              smoothFactor = 0.2,
+              highlight = highlightOptions(
+                weight = 5,
+                color = "#666",
+                fillOpacity = 0.2,
+                bringToFront = TRUE),
+              label=london_others$pop9,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")) %>%
+  addLegend(pal = pal9, group = "Asian/Asian British Ethnic Rate" , values = london_others$`Asian_Asian British rate`, title = "Asian/Asian British Ethnic %", opacity = 0.7,
+            labFormat = labelFormat(suffix = " %")) %>%
+  addPolygons(data = london_others, fillColor = ~pal10(london_others$`Black_ African_Caribbean_Black British rate`),
+              fillOpacity = 0.4,
+              group = "Black/Black British Ethnic Rate",
+              weight = 0.2,
+              smoothFactor = 0.2,
+              highlight = highlightOptions(
+                weight = 5,
+                color = "#666",
+                fillOpacity = 0.2,
+                bringToFront = TRUE),
+              label=london_others$pop10,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")) %>%
+  addLegend(pal = pal10, group = "Black/Black British Ethnic Rate" , values = london_others$`Black_ African_Caribbean_Black British rate`, title = "Black/Black British Ethnic %", opacity = 0.7,
+            labFormat = labelFormat(suffix = " %")) %>%
+  addPolygons(data = london_others, fillColor = ~pal11(london_others$`Other ethnic group rate`),
+              fillOpacity = 0.4,
+              group = "Other Ethnics Rate",
+              weight = 0.2,
+              smoothFactor = 0.2,
+              highlight = highlightOptions(
+                weight = 5,
+                color = "#666",
+                fillOpacity = 0.2,
+                bringToFront = TRUE),
+              label=london_others$pop11,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")) %>%
+  addLegend(pal = pal11, group = "Other Ethnics Rate" , values = london_others$`Other ethnic group rate`, title = "Other Ethnics %", opacity = 0.7,
+            labFormat = labelFormat(suffix = " %")) %>%
+  addPolygons(data = london_others, fillColor = ~pal12(london_others$`population density (persons per hectar)`),
+              fillOpacity = 0.4,
+              group = "Population Density",
+              weight = 0.2,
+              smoothFactor = 0.2,
+              highlight = highlightOptions(
+                weight = 5,
+                color = "#666",
+                fillOpacity = 0.2,
+                bringToFront = TRUE),
+              label=london_others$pop12,
+              labelOptions = labelOptions(
+                style = list("font-weight" = "normal", padding = "3px 8px"),
+                textsize = "15px",
+                direction = "auto")) %>%
+  addLegend(pal = pal12, group = "Population Density" , values = london_others$`population density (persons per hectar)`, title = "Population (per hectare)" ,opacity = 0.7) %>%
   addLayersControl(
     overlayGroups = c( "Criminal damage and arson", "Possession of weapons", "Bicycle theft", "Other theft","Burglary", "Drugs","Public order", 
                        "Shoplifting", "Vehicle crime", "Violence and sexual offences",
-                       "Robbery", "Theft from the person", "Other crime", "Income", "Unemployment Rate"),
+                       "Robbery", "Theft from the person", "Other crime", "Income", "Unemployment Rate", "No Qualification Rate",
+                       "Average PTAL score", "Immigration Rate", "Median House Price", "White Ethnic Rate", "Mixed Ethnic Rate",
+                       "Asian/Asian British Ethnic Rate","Black/Black British Ethnic Rate", "Other Ethnics Rate", "Population Density"),
     options = layersControlOptions(collapsed = T),
     position = "bottomleft"
   ) %>% hideGroup(c("Possession of weapons", "Bicycle theft", "Other theft","Burglary", "Drugs","Public order", 
                     "Shoplifting", "Vehicle crime", "Violence and sexual offences",
-                    "Robbery", "Theft from the person", "Other crime", "Income", "Unemployment Rate"))
+                    "Robbery", "Theft from the person", "Other crime", "Income", "Unemployment Rate", "No Qualification Rate",
+                    "Average PTAL score", "Immigration Rate", "Median House Price", "White Ethnic Rate", "Mixed Ethnic Rate",
+                    "Asian/Asian British Ethnic Rate","Black/Black British Ethnic Rate","Other Ethnics Rate", "Population Density"))
 
 
 

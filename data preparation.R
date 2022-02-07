@@ -4,6 +4,8 @@ library(sf)
 library(rgdal)
 library(spdplyr)
 library(tigris)
+library(lubridate)
+
 rm(list = ls())
 
 ##############################################################################################
@@ -41,7 +43,7 @@ london_ss <- bind_rows(
   ss_oct21,
   ss_nov21
 )
-#saveRDS(london_ss, "london_ss.rds")
+# saveRDS(london_ss, "london_ss.rds")
 
 
 # visualizing the NAs and data types
@@ -81,7 +83,7 @@ london_st <- bind_rows(
   st_oct21,
   st_nov21
 )
-#saveRDS(london_st, "london_st.rds")
+# saveRDS(london_st, "london_st.rds")
 
 
 # visualizing the NAs and data types
@@ -135,11 +137,11 @@ glimpse(df_search)
 visdat::vis_dat(df_search)
 
 # reading the street crime dataset for london (3 years)
-temp_st = list.files(path = paste0(getwd(), "/london 3yrs data"), pattern="*street.csv")
-temp_st = paste0(getwd(), "/london 3yrs data/", temp_st)
-street = lapply(temp_st, read_csv)
+temp_st <- list.files(path = paste0(getwd(), "/london 3yrs data"), pattern = "*street.csv")
+temp_st <- paste0(getwd(), "/london 3yrs data/", temp_st)
+street <- lapply(temp_st, read_csv)
 
-df_street = street %>% reduce(rbind)
+df_street <- street %>% reduce(rbind)
 
 
 
@@ -158,17 +160,19 @@ df_st <- df_street %>%
 visdat::vis_dat(df_st)
 
 
-df_st <- df_st %>% rename(crime_id = `Crime ID`,
-                          crime_type = `Crime type`,
-                          reported_by = `Reported by`,
-                          falls_within = `Falls within`,
-                          lsoa_code = `LSOA code`,
-                          lsoa_name = `LSOA name`,
-                          last_outcome_category = `Last outcome category`)
+df_st <- df_st %>% rename(
+  crime_id = `Crime ID`,
+  crime_type = `Crime type`,
+  reported_by = `Reported by`,
+  falls_within = `Falls within`,
+  lsoa_code = `LSOA code`,
+  lsoa_name = `LSOA name`,
+  last_outcome_category = `Last outcome category`
+)
 
 df_st$crime_type <- as.factor(df_st$crime_type)
 
-#saveRDS(df_st, "df_st.rds")
+# saveRDS(df_st, "df_st_london.rds")
 
 # removing NA columns and rows with no lat/long in london_ss.RDS
 df_ss <- df_search %>%
@@ -179,61 +183,89 @@ df_ss <- df_search %>%
 visdat::vis_dat(df_ss)
 
 
-df_ss <- df_ss %>% rename(age = `Age range`,
-                          self_defined_ethnicity = `Self-defined ethnicity`,
-                          officer_defined_ethnicity = `Officer-defined ethnicity`,
-                          object_of_search = `Object of search`,
-                          outcome_linked_to_object_of_search = `Outcome linked to object of search`,
-                          removal_of_more_than_just_outer_clothing = `Removal of more than just outer clothing`)
+df_ss <- df_ss %>% rename(
+  age = `Age range`,
+  self_defined_ethnicity = `Self-defined ethnicity`,
+  officer_defined_ethnicity = `Officer-defined ethnicity`,
+  object_of_search = `Object of search`,
+  outcome_linked_to_object_of_search = `Outcome linked to object of search`,
+  removal_of_more_than_just_outer_clothing = `Removal of more than just outer clothing`
+)
 
-#saveRDS(df_ss, "df_ss.rds")
+# saveRDS(df_ss, "df_ss.rds")
 
 ################# DATA MERGING by latitude and longitude #################
 df_merged <- left_join(df_st, df_ss)
 
 summary(df_merged)
 
-################# ################# ################# ################# ################# 
-##################################        OTHER DATASETS      ################################## 
+################# ################# ################# ################# #################
+##################################        OTHER DATASETS      ##################################
 # reading LSAO shapefile and prepaaration
-lsoa_london <- readOGR(dsn="ESRI", layer="LSOA_2011_London_gen_MHW")
+lsoa_london <- readOGR(dsn = "ESRI", layer = "LSOA_2011_London_gen_MHW")
 
 # transforming to long & lat
-lsoa_london <- spTransform(lsoa_london, CRS("+proj=longlat +datum=WGS84")) 
+lsoa_london <- spTransform(lsoa_london, CRS("+proj=longlat +datum=WGS84"))
 
 # converting into a sf object
 lsoa_london <- st_as_sf(lsoa_london)
 
-lsoa_london <- lsoa_london %>%rename(lsoa_code = LSOA11CD)
+lsoa_london <- lsoa_london %>% rename(lsoa_code = LSOA11CD)
 
 
 
 # reading income dataset
-income <- read_excel("income dataset.xlsx")
+london_others_dataset <- read_excel("london_others dataset.xlsx")
 
-income <- income %>% rename(lsoa_code = Codes)
-
-
-
-# merging INCOME data with GEOMETRY and LONDON STREET data
-df_income <- full_join(lsoa_london, income)
-
-df_income <- df_income %>% select(lsoa_code, LSOA11NM, 'Mean Annual Household Income estimate',
-                                  'Median Annual Household Income estimate', geometry)
-
-df_st <- full_join(df_income, df_st)
-#saveRDS(df_income, "london_income.rds")
+london_others_dataset <- london_others_dataset %>% rename(lsoa_code = Codes)
 
 
-# merging income data with df_st
-df_st <- left_join(df_st, df_income)
 
-summary(df_st)
-#saveRDS(df_st, "london_st.rds")
+# merging every data with GEOMETRY and LONDON STREET data
+df_others <- left_join(london_others_dataset, lsoa_london)
+
+df_others <- df_others %>% select(
+  lsoa_code, LSOA11NM, "mean_annual_income_household",
+  "median_annual_income_household", "households with no adults in employment with children rate",
+  "All lone parent housholds with dependent children", "Lone parent not in employment rate",
+  "Unemployment Rate", "No qualifications rate",
+  "Average Score of PTAL", "population density (persons per hectar)",
+  "age 0 to 15", "age 16to 29",
+  "age 30 to 44", "age 45 to 64",
+  "age 65>", "White rate",
+  "Mixed ethnic groups rate", "Asian_Asian British rate",
+  "Black_ African_Caribbean_Black British rate", "Other ethnic group rate",
+  "BAME rate", "country of birth uk rate",
+  "country of birth Not uk rate", "median price of house",  geometry
+)
 
 
-#merging the shapefiles with london_st dataset
-#######lsao <- lsao %>% rename(lsoa_code = LSOA11CD) %>% select(lsoa_code, LSOA11NM, geometry)
-#######
-#######df_st <- full_join(df_st, lsao)
+
+df_st_london <- readRDS("df_st_london.rds")
+df_london_crime_census <- left_join(df_st_london, df_others)
+
+# saveRDS(df_london_crime_census, "london_others.rds")
+
+london_others <- readRDS("london_others.rds")
+
+hist(london_others$`Unemployment Rate`)
+
+london_others <- london_others %>% mutate(unemp = ifelse(`Unemployment Rate`< 2.7, "2.7 or below",
+                                                         (ifelse(`Unemployment Rate` > 2.7 & `Unemployment Rate` <= 4.5, "2.7 - 4.5",
+                                                                 ifelse(`Unemployment Rate` > 4.5 & `Unemployment Rate` <= 10, "4.5 - 10",
+                                                                        "10 or above")))))
+                                                         
+hist(london_others$'No qualifications rate')                                                        
+london_others <- london_others %>%  mutate(qualification = ifelse(`No qualifications rate` < 2, "2 or below",
+                                                                  (ifelse(`No qualifications rate` > 2 & `No qualifications rate` <= 7, "2 - 7",
+                                                                          (ifelse(`No qualifications rate` > 7 & `No qualifications rate` <= 20, "7 - 20",
+                                                                                  "20 or above"))))))
+
+hist(london_others$`Average Score of PTAL`)
+london_others <- london_others %>% mutate(ptal = ifelse(`Average Score of PTAL`<= 7.8, "7.8 or below",
+                                                        ifelse(`Average Score of PTAL`>7.8 & `Average Score of PTAL` <= 7.93, "7.8 - 7.93",
+                                                               ifelse(`Average Score of PTAL`> 7.93 & `Average Score of PTAL` <= 7.98, "7.93 - 7.98",
+                                                                      "7.98 or above"))))
+# saveRDS(london_others, "london_others.rds")
+
 
