@@ -222,91 +222,6 @@ leaflet() %>%
                 textsize = "15px",
                 direction = "auto")) %>%
   addLegend(pal = pal6, group = "Median House Price" , values = london_others$`median price of house`, title = "Median House Price (£)" ,opacity = 0.7) %>%
-  addPolygons(data = london_others, fillColor = ~pal7(london_others$`White rate`),
-              fillOpacity = 0.4,
-              group = "White Ethnic Rate",
-              weight = 0.2,
-              smoothFactor = 0.2,
-              highlight = highlightOptions(
-                weight = 5,
-                color = "#666",
-                fillOpacity = 0.2,
-                bringToFront = TRUE),
-              label=london_others$pop7,
-              labelOptions = labelOptions(
-                style = list("font-weight" = "normal", padding = "3px 8px"),
-                textsize = "15px",
-                direction = "auto")) %>%
-  addLegend(pal = pal7, group = "White Ethnic Rate" , values = london_others$`White rate`, title = "White Ethnic %", opacity = 0.7,
-            labFormat = labelFormat(suffix = " %")) %>%
-  addPolygons(data = london_others, fillColor = ~pal8(london_others$`Mixed ethnic groups rate`),
-              fillOpacity = 0.4,
-              group = "Mixed Ethnic Rate",
-              weight = 0.2,
-              smoothFactor = 0.2,
-              highlight = highlightOptions(
-                weight = 5,
-                color = "#666",
-                fillOpacity = 0.2,
-                bringToFront = TRUE),
-              label=london_others$pop8,
-              labelOptions = labelOptions(
-                style = list("font-weight" = "normal", padding = "3px 8px"),
-                textsize = "15px",
-                direction = "auto")) %>%
-  addLegend(pal = pal8, group = "Mixed Ethnic Rate" , values = london_others$`Mixed ethnic groups rate`, title = "Mixed Ethnic %", opacity = 0.7,
-            labFormat = labelFormat(suffix = " %")) %>%
-  addPolygons(data = london_others, fillColor = ~pal9(london_others$`Asian_Asian British rate`),
-              fillOpacity = 0.4,
-              group = "Asian/Asian British Ethnic Rate",
-              weight = 0.2,
-              smoothFactor = 0.2,
-              highlight = highlightOptions(
-                weight = 5,
-                color = "#666",
-                fillOpacity = 0.2,
-                bringToFront = TRUE),
-              label=london_others$pop9,
-              labelOptions = labelOptions(
-                style = list("font-weight" = "normal", padding = "3px 8px"),
-                textsize = "15px",
-                direction = "auto")) %>%
-  addLegend(pal = pal9, group = "Asian/Asian British Ethnic Rate" , values = london_others$`Asian_Asian British rate`, title = "Asian/Asian British Ethnic %", opacity = 0.7,
-            labFormat = labelFormat(suffix = " %")) %>%
-  addPolygons(data = london_others, fillColor = ~pal10(london_others$`Black_ African_Caribbean_Black British rate`),
-              fillOpacity = 0.4,
-              group = "Black/Black British Ethnic Rate",
-              weight = 0.2,
-              smoothFactor = 0.2,
-              highlight = highlightOptions(
-                weight = 5,
-                color = "#666",
-                fillOpacity = 0.2,
-                bringToFront = TRUE),
-              label=london_others$pop10,
-              labelOptions = labelOptions(
-                style = list("font-weight" = "normal", padding = "3px 8px"),
-                textsize = "15px",
-                direction = "auto")) %>%
-  addLegend(pal = pal10, group = "Black/Black British Ethnic Rate" , values = london_others$`Black_ African_Caribbean_Black British rate`, title = "Black/Black British Ethnic %", opacity = 0.7,
-            labFormat = labelFormat(suffix = " %")) %>%
-  addPolygons(data = london_others, fillColor = ~pal11(london_others$`Other ethnic group rate`),
-              fillOpacity = 0.4,
-              group = "Other Ethnics Rate",
-              weight = 0.2,
-              smoothFactor = 0.2,
-              highlight = highlightOptions(
-                weight = 5,
-                color = "#666",
-                fillOpacity = 0.2,
-                bringToFront = TRUE),
-              label=london_others$pop11,
-              labelOptions = labelOptions(
-                style = list("font-weight" = "normal", padding = "3px 8px"),
-                textsize = "15px",
-                direction = "auto")) %>%
-  addLegend(pal = pal11, group = "Other Ethnics Rate" , values = london_others$`Other ethnic group rate`, title = "Other Ethnics %", opacity = 0.7,
-            labFormat = labelFormat(suffix = " %")) %>%
   addPolygons(data = london_others, fillColor = ~pal12(london_others$`population density (persons per hectar)`),
               fillOpacity = 0.4,
               group = "Population Density",
@@ -327,15 +242,13 @@ leaflet() %>%
     overlayGroups = c( "Criminal damage and arson", "Possession of weapons", "Bicycle theft", "Other theft","Burglary", "Drugs","Public order", 
                        "Shoplifting", "Vehicle crime", "Violence and sexual offences",
                        "Robbery", "Theft from the person", "Other crime", "Income", "Unemployment Rate", "No Qualification Rate",
-                       "Average PTAL score", "Immigration Rate", "Median House Price", "White Ethnic Rate", "Mixed Ethnic Rate",
-                       "Asian/Asian British Ethnic Rate","Black/Black British Ethnic Rate", "Other Ethnics Rate", "Population Density"),
+                       "Average PTAL score", "Immigration Rate", "Median House Price", "Population Density"),
     options = layersControlOptions(collapsed = T),
     position = "bottomleft"
   ) %>% hideGroup(c("Possession of weapons", "Bicycle theft", "Other theft","Burglary", "Drugs","Public order", 
                     "Shoplifting", "Vehicle crime", "Violence and sexual offences",
                     "Robbery", "Theft from the person", "Other crime", "Income", "Unemployment Rate", "No Qualification Rate",
-                    "Average PTAL score", "Immigration Rate", "Median House Price", "White Ethnic Rate", "Mixed Ethnic Rate",
-                    "Asian/Asian British Ethnic Rate","Black/Black British Ethnic Rate","Other Ethnics Rate", "Population Density"))
+                    "Average PTAL score", "Immigration Rate", "Median House Price", "Population Density"))
 
 
 
@@ -380,8 +293,19 @@ crime_agg <- london_st %>% select(crime_type, Month) %>% group_by(Month) %>% sum
   mutate(Month = ym(Month))
 
 #time series crimes for 3 years
-ggplot(crime_agg, aes(x = Month, y = value)) + geom_line() + theme_minimal() + ylab("Count") + xlab("Year") + 
-  ggtitle("Committed Crimes in London over 3 years")
+p <- ggplot(crime_agg, aes(x = Month, y = value)) + geom_line() + theme_minimal() + ylab("Count") + xlab("Year") + 
+  ggtitle("Committed Crimes in London Over 3 years") + labs(caption = "First National Lockdown: March to June 2020,
+                                                            Second National Lockdown: November 2020,
+                                                            Third National Lockdown: January to March 2021") +
+   geom_vline(xintercept = as.Date("2020-03-13"), linetype="dashed", color="red") + geom_vline(xintercept = as.Date("2020-06-15"), linetype="dashed", color="red")+
+  geom_vline(xintercept = as.Date("2020-11-01"), linetype="dashed", color="blue") + geom_vline(xintercept = as.Date("2020-11-30"), linetype="dashed", color="blue")+
+  geom_vline(xintercept = as.Date("2021-01-01"), linetype="dashed", color="green") + geom_vline(xintercept = as.Date("2021-03-31"), linetype="dashed", color="green")
+
+ggplotly(p) %>% layout(title = list(text = paste0('Committed Crimes in London Over 3 years',
+                                                  '<br>',
+                                                  '<sup>',
+                                                  'National Lockdowns: March to June 2020, November 2020, January to March 2021',
+                                                  '</sup>'))) 
 
 #aggregating different crime types based on a month 
 crime_by_type_all <- london_st %>% select(crime_type, Month) %>% group_by(Month, crime_type) %>% summarise(value = n()) %>% 
@@ -392,6 +316,19 @@ c <- ggplot(crime_by_type_all, aes(x = Month, y = value, color = crime_type)) + 
   ylab("Count") + xlab("Year")+ ggtitle("Different Crime Types in London over 3 years")
 
 ggplotly(c)
+
+##aggregating robbery related crimes based on a month
+#robberies <- london_st %>% filter(crime_type == "Bicycle theft" | crime_type == "Burglary" | crime_type == "Other theft"| crime_type == "Robbery"| 
+#                                  crime_type == "Shoplifting"| crime_type =="Theft from the person")
+#
+#rob_agg <- robberies %>% select(crime_type, Month) %>% group_by(Month) %>% summarise(value = n()) %>% 
+#  mutate(Month = ym(Month))
+#
+#p1 <- ggplot(rob_agg, aes(x = Month, y = value, color = crime_type)) + geom_line() + theme_minimal() +
+#  ylab("Count") + xlab("Year")+ ggtitle("Different Theft Types in London over 3 years")
+#
+#ggplotly(p1)
+
 
 #aggregating crimes based on a month between 2018 and 2020 (before COVID-19 hit) first lockdown was introduced in march 2020
 seasonality_total_2019 <- london_st %>% mutate(Month = ym(Month)) %>% 
