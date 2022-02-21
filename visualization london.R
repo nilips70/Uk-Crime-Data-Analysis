@@ -264,7 +264,7 @@ p <- ggplot(crime_agg, aes(x = Month, y = value)) + geom_line() + theme_minimal(
   geom_vline(xintercept = as.Date("2020-11-01"), linetype="dashed", color="blue") + geom_vline(xintercept = as.Date("2020-11-30"), linetype="dashed", color="blue")+
   geom_vline(xintercept = as.Date("2021-01-01"), linetype="dashed", color="green") + geom_vline(xintercept = as.Date("2021-03-31"), linetype="dashed", color="green")
 
-ggplotly(p) %>% layout(title = list(text = paste0('Committed Crimes in London Over 3 years',
+ggplotly(p) %>% layout(title = list(text = paste0('Committed Crimes in City of London Over 3 years',
                                                   '<br>',
                                                   '<sup>',
                                                   'National Lockdowns: March to June 2020, November 2020, January to March 2021',
@@ -278,7 +278,7 @@ crime_agg <- crime_agg %>% mutate(roll_mean_2month = zoo::rollmean(value,2, na.p
 
 ggplot(crime_agg) + geom_line(aes(x = Month, y = value)) + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
   theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Smoothed Different Crime Types in London over 3 years")
+  ylab("Count") + xlab("Year")+ ggtitle("Smoothed Different Crime Types in City of London over 3 years")
 
 
 
@@ -300,7 +300,7 @@ crime_by_type_all <- london_st %>% select(crime_type, Month) %>%
 
 #time series for each crime in 3 years
 c <- ggplot(crime_by_type_all, aes(x = Month, y = value, color = crime_type)) + geom_line() + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Different Crime Types in London over 3 years")
+  ylab("Count") + xlab("Year")+ ggtitle("Different Crime Types in City of London over 3 years")
 
 ggplotly(c)
 
@@ -327,81 +327,81 @@ crime_by_type_smoothed %>% filter(crime_type == "Bicycle theft") %>%
 crime_by_type_smoothed %>% filter(crime_type == "Bicycle theft") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Bicycle theft in London over 3 years (smoothed over 3 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Bicycle theft in City of London over 3 years (smoothed over 3 months)")
 
 
 #smoothed time series for Burglary
 crime_by_type_smoothed %>% filter(crime_type == "Burglary") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Burglary in London over 3 years (smoothed over 3 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Burglary in City of London over 3 years (smoothed over 3 months)")
 
 
 crime_by_type_smoothed %>% filter(crime_type == "Burglary") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Burglary in London over 3 years (smoothed over 2 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Burglary in City of London over 3 years (smoothed over 2 months)")
 
 #smoothed time series for Criminal damage and arson
 crime_by_type_smoothed %>% filter(crime_type == "Criminal damage and arson") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Criminal damage and arson in London over 3 years (smoothed over 3 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Criminal damage and arson in City of London over 3 years (smoothed over 3 months)")
 
 
 crime_by_type_smoothed %>% filter(crime_type == "Criminal damage and arson") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Criminal damage and arson in London over 3 years (smoothed over 2 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Criminal damage and arson in City of London over 3 years (smoothed over 2 months)")
 
 #smoothed time series for Drugs
 crime_by_type_smoothed %>% filter(crime_type == "Drugs") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Drugs in London over 3 years (smoothed over 3 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Drugs in City of London over 3 years (smoothed over 3 months)")
 
 
 crime_by_type_smoothed %>% filter(crime_type == "Drugs") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Drugs in London over 3 years (smoothed over 2 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Drugs in City of London over 3 years (smoothed over 2 months)")
 
 #smoothed time series for Other crime
 crime_by_type_smoothed %>% filter(crime_type == "Other crime") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Other crime in London over 3 years (smoothed over 3 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Other crime in City of London over 3 years (smoothed over 3 months)")
 
 
 crime_by_type_smoothed %>% filter(crime_type == "Other crime") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Other crime in London over 3 years (smoothed over 2 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Other crime in City of London over 3 years (smoothed over 2 months)")
 
 #smoothed time series for Other theft
 crime_by_type_smoothed %>% filter(crime_type == "Other theft") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Other theft in London over 3 years (smoothed over 3 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Other theft in City of London over 3 years (smoothed over 3 months)")
 
 
 crime_by_type_smoothed %>% filter(crime_type == "Other theft") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Other theft in London over 3 years (smoothed over 2 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Other theft in City of London over 3 years (smoothed over 2 months)")
 
 
 #smoothed time series for Possession of weapons
 crime_by_type_smoothed %>% filter(crime_type == "Possession of weapons") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Possession of weapons in London over 3 years (smoothed over 3 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Possession of weapons in City of London over 3 years (smoothed over 3 months)")
 
 
 crime_by_type_smoothed %>% filter(crime_type == "Possession of weapons") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Possession of weapons in London over 3 years (smoothed over 2 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Possession of weapons in City of London over 3 years (smoothed over 2 months)")
 
 
 
@@ -409,52 +409,52 @@ crime_by_type_smoothed %>% filter(crime_type == "Possession of weapons") %>%
 crime_by_type_smoothed %>% filter(crime_type == "Public order") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Public order in London over 3 years (smoothed over 3 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Public order in City of London over 3 years (smoothed over 3 months)")
 
 
 crime_by_type_smoothed %>% filter(crime_type == "Public order") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Public order in London over 3 years (smoothed over 2 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Public order in City of London over 3 years (smoothed over 2 months)")
 
 
 #smoothed time series for Robbery
 crime_by_type_smoothed %>% filter(crime_type == "Robbery") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Robbery in London over 3 years (smoothed over 3 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Robbery in City of London over 3 years (smoothed over 3 months)")
 
 
 crime_by_type_smoothed %>% filter(crime_type == "Robbery") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Robbery in London over 3 years (smoothed over 2 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Robbery in City of London over 3 years (smoothed over 2 months)")
 
 
 #smoothed time series for Shoplifting
 crime_by_type_smoothed %>% filter(crime_type == "Shoplifting") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Shoplifting in London over 3 years (smoothed over 3 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Shoplifting in City of London over 3 years (smoothed over 3 months)")
 
 
 crime_by_type_smoothed %>% filter(crime_type == "Shoplifting") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Shoplifting in London over 3 years (smoothed over 2 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Shoplifting in City of London over 3 years (smoothed over 2 months)")
 
 
 #smoothed time series for Theft from the person
 crime_by_type_smoothed %>% filter(crime_type == "Theft from the person") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Theft from the person in London over 3 years (smoothed over 3 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Theft from the person in City of London over 3 years (smoothed over 3 months)")
 
 
 crime_by_type_smoothed %>% filter(crime_type == "Theft from the person") %>% 
   ggplot() + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
   geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
-  ylab("Count") + xlab("Year")+ ggtitle("Theft from the person in London over 3 years (smoothed over 2 months)")
+  ylab("Count") + xlab("Year")+ ggtitle("Theft from the person in City of London over 3 years (smoothed over 2 months)")
 
 
 
@@ -483,7 +483,7 @@ seasonality_by_type_2019 <- london_st %>% mutate(Month = ym(Month)) %>%
 
 #time series different crime types before COVID 19 hit
 c2 <- ggplot(seasonality_by_type_2019, aes(x = Month, y = value, color = crime_type)) +
-  geom_line() + xlab("Date") +ylab("Count") + ggtitle("Different Crime Types in London before Covid Pandemic")
+  geom_line() + xlab("Date") +ylab("Count") + ggtitle("Different Crime Types in City of London before Covid Pandemic")
 
 ggplotly(c2)
 
@@ -540,7 +540,7 @@ total_crime_fun = function(data,x){
   
   #time series crimes until COVID-19 hit   
   c1 <- ggplot(seasonality_total, aes(x = Month, y = value)) + geom_line() + ylab("Count") + 
-    xlab("Date") + theme_minimal() + ggtitle(paste0("Committed Crimes in London before ", x))
+    xlab("Date") + theme_minimal() + ggtitle(paste0("Committed Crimes in City of London before ", x))
   
   return(ggplotly(c1))
   
@@ -558,7 +558,7 @@ crime_by_type_fun = function(data,x){
     select(crime_type, Month) %>% group_by(Month, crime_type) %>% summarise(value = n()) 
   
   c2 <- ggplot(seasonality_by_type, aes(x = Month, y = value, color = crime_type)) +
-    geom_line() + xlab("Date") +ylab("Count") + ggtitle(paste0("Different Crime Types in London before ", x))
+    geom_line() + xlab("Date") +ylab("Count") + ggtitle(paste0("Different Crime Types in City of London before ", x))
   
   return(ggplotly(c2))
   
@@ -576,7 +576,7 @@ crime_by_type_yearly_fun = function(data,x){
     select(crime_type, Month) %>% group_by(Month, crime_type) %>% summarise(value = n()) 
   
   c2 <- ggplot(seasonality_by_type_2019, aes(x = Month, y = value, color = crime_type)) +
-    geom_line() + xlab("Date") +ylab("Count") + ggtitle(paste0("Different Crime Types in London in ", x))
+    geom_line() + xlab("Date") +ylab("Count") + ggtitle(paste0("Different Crime Types in City of London in ", x))
   
   return(ggplotly(c2))
   
