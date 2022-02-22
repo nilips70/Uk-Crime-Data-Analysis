@@ -458,6 +458,30 @@ crime_by_type_smoothed %>% filter(crime_type == "Theft from the person") %>%
 
 
 
+#smoothed time series for Vehicle crime
+crime_by_type_smoothed %>% filter(crime_type == "Vehicle crime") %>% 
+  ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
+  geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
+  ylab("Count") + xlab("Year")+ ggtitle("Vehicle crime Registered in City of London over 3 years (smoothed over 3 months)")
+
+
+crime_by_type_smoothed %>% filter(crime_type == "Vehicle crime") %>% 
+  ggplot() + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
+  geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
+  ylab("Count") + xlab("Year")+ ggtitle("Vehicle crime in City of London over 3 years (smoothed over 2 months)")
+
+#smoothed time series for Violence and sexual offences
+crime_by_type_smoothed %>% filter(crime_type == "Vehicle crime") %>% 
+  ggplot() + geom_line(aes(x = Month, y = roll_mean_3month), color = "orange") +
+  geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
+  ylab("Count") + xlab("Year")+ ggtitle("Violence and sexual offences Registered in City of London over 3 years (smoothed over 3 months)")
+
+
+crime_by_type_smoothed %>% filter(crime_type == "Violence and sexual offences") %>% 
+  ggplot() + geom_line(aes(x = Month, y = roll_mean_2month), color = "orange") +
+  geom_point(aes(x = Month, y = value), color = "black") + theme_minimal() +
+  ylab("Count") + xlab("Year")+ ggtitle("Violence and sexual offences in City of London over 3 years (smoothed over 2 months)")
+
                                               
 
                                           #BEFORE COVID #ALL CRIMES TOGETTHER
