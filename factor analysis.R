@@ -17,13 +17,7 @@ rm(list=ls())
 west_midland_st <- readRDS("west_midland_st.rds")
 merseyside_st <- readRDS("merseyside_st.rds")
 all_london_st <- readRDS("all_london_st.rds")
-
-#data preparation
-west_midland_st <- west_midland_st %>% mutate(region = "W")
-merseyside_st <- merseyside_st %>% mutate(region = "M")
-all_london_st <- all_london_st %>% mutate(region = "L")
-
-all <- rbind(west_midland_st, merseyside_st, all_london_st)
+westyorkshire_st <- readRDS("westyorkshire_st.rds")
 
 
 #####################################################################
@@ -150,3 +144,36 @@ corrplot::corrplot(cor(all_wide[,-1]), type = "upper", order = 'hclust')
 # 
 # fa.diagram(fa.none)
 
+#####################################################################
+# ====================== west yorkshire =============================
+#####################################################################
+all_wide = westyorkshire_st %>% filter(crime_type != "Other crime") %>% select(Month, crime_type) %>% 
+  group_by(Month,crime_type) %>% summarise(value = n()) %>% 
+  pivot_wider(names_from = crime_type,values_from = value) %>% 
+  ungroup() %>% select(-Month)
+
+corrplot::corrplot(cor(all_wide[,-1]), type = "upper", order = 'hclust')
+
+fafitfree <- fa(all_wide,nfactors = ncol(all_wide), rotate = "none")
+
+n_factors <- length(fafitfree$e.values)
+
+scree <- data.frame(Factor_n =  as.factor(1:n_factors), Eigenvalue = fafitfree$e.values)
+
+# Scree plot
+ggplot(scree, aes(x = Factor_n, y = Eigenvalue, group = 1)) + 
+  geom_point() + geom_line() +
+  xlab("Number of factors") + ylab("Initial eigenvalue") + labs( title = "Scree Plot")
+
+# Factor analysis
+factanal <- factanal(all_wide, factors=4, scores = c("regression"), rotation = "varimax")
+print(factanal)
+
+
+fa.none <- fa(r=all_wide, 
+              nfactors = 4, 
+              fm="pa", # type of factor analysis we want to use (“pa” is principal axis factoring)
+              max.iter=100, # (50 is the default, but we have changed it to 100
+              rotate="varimax")
+
+fa.diagram(fa.none)
